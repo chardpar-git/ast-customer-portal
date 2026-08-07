@@ -1,53 +1,66 @@
 body{
-
-background:#edf2f7;
-
-font-family:Segoe UI,Arial,sans-serif;
-
-height:100vh;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
+    background: linear-gradient(135deg,#0d6efd,#5dade2);
+    font-family: "Segoe UI", Arial, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:0;
 }
 
 .login-card{
-
-background:white;
-
-padding:40px;
-
-border-radius:15px;
-
-box-shadow:0 15px 40px rgba(0,0,0,.15);
-
-width:420px;
-
-text-align:center;
-
+    width:420px;
+    background:#fff;
+    border-radius:20px;
+    padding:40px;
+    text-align:center;
+    box-shadow:0 20px 40px rgba(0,0,0,.20);
+    animation:fadeIn .6s ease;
 }
 
 .logo{
+    width:120px;
+    margin-bottom:20px;
+}
 
-width:120px;
+h2{
+    font-weight:700;
+    color:#0d6efd;
+}
 
-margin-bottom:20px;
+.text-muted{
+    margin-bottom:25px;
+}
 
+.form-control{
+    height:50px;
+    border-radius:10px;
 }
 
 .btn-primary{
-
-background:#0066cc;
-
-border:none;
-
+    height:50px;
+    border-radius:10px;
+    font-weight:bold;
+    transition:.3s;
 }
 
 .btn-primary:hover{
+    transform:translateY(-2px);
+}
 
-background:#0052a3;
+.footer{
+    margin-top:25px;
+    color:#777;
+    font-size:13px;
+}
 
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
 }
