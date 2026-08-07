@@ -1,22 +1,52 @@
 body{
-    background:#f5f7fb;
-    font-family:Segoe UI,Arial,sans-serif;
+background:#f4f7fb;
+font-family:Segoe UI,Arial,sans-serif;
 }
 
-.card{
-    border:none;
-    border-radius:15px;
-    transition:.3s;
+.dashboard-card{
+
+border:none;
+
+border-radius:15px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+transition:.3s;
+
 }
 
-.card:hover{
-    transform:translateY(-5px);
+.dashboard-card:hover{
+
+transform:translateY(-5px);
+
 }
 
 .card-body{
-    padding:30px;
+
+text-align:center;
+
+padding:30px;
+
+}
+
+.icon{
+
+font-size:42px;
+
+margin-bottom:15px;
+
+display:block;
+
+}
+
+.progress{
+
+border-radius:20px;
+
 }
 
 .navbar{
-    padding:15px;
+
+padding:15px;
+
 }
