@@ -1,1 +1,22 @@
+body{
+    background:#f5f7fb;
+    font-family:Segoe UI,Arial,sans-serif;
+}
 
+.card{
+    border:none;
+    border-radius:15px;
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.card-body{
+    padding:30px;
+}
+
+.navbar{
+    padding:15px;
+}
