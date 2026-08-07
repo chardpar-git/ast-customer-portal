@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>AST Customer Portal</title>
+  <title>AST Internet Usage Dashboard</title>
 
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -19,116 +20,222 @@
     rel="stylesheet"
   >
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
   <style>
     * {
       box-sizing: border-box;
     }
 
     body {
-      min-height: 100vh;
       margin: 0;
+      min-height: 100vh;
       font-family: Arial, Helvetica, sans-serif;
+      background: #f3f6fb;
+      color: #1d2939;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #002b80, #075ee8);
+      color: #ffffff;
+      padding: 18px 0;
+      box-shadow: 0 5px 20px rgba(0, 43, 128, 0.2);
+    }
+
+    .brand-logo {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 5px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .brand-subtitle {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 13px;
+      margin: 2px 0 0;
+    }
+
+    .page-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 30px 16px 45px;
+    }
+
+    .welcome-card,
+    .usage-card,
+    .chart-card,
+    .details-card {
+      border: 0;
+      border-radius: 18px;
+      box-shadow: 0 10px 32px rgba(16, 24, 40, 0.08);
+    }
+
+    .welcome-card {
       background:
         radial-gradient(
-          circle at top left,
-          rgba(255, 255, 255, 0.16),
+          circle at top right,
+          rgba(13, 110, 253, 0.13),
           transparent 38%
         ),
-        linear-gradient(135deg, #002b80, #075ee8);
+        #ffffff;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 100px;
+      padding: 8px 14px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .status-active {
+      color: #087443;
+      background: #dff8eb;
+    }
+
+    .status-expired {
+      color: #b42318;
+      background: #fee4e2;
+    }
+
+    .status-invalid {
+      color: #b54708;
+      background: #ffead5;
+    }
+
+    .metric-card {
+      height: 100%;
+      border: 1px solid #e8edf5;
+      border-radius: 15px;
+      padding: 19px;
+      background: #ffffff;
+    }
+
+    .metric-icon {
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      border-radius: 12px;
+      color: #075ee8;
+      background: #eaf2ff;
+      font-size: 21px;
+      margin-bottom: 13px;
     }
 
-    .login-card {
-      width: 100%;
-      max-width: 460px;
-      background: #ffffff;
-      border: 0;
-      border-radius: 24px;
-      padding: 34px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
-    }
-
-    .logo {
-      width: 92px;
-      height: 92px;
-      object-fit: contain;
-      margin-bottom: 16px;
-    }
-
-    .portal-title {
-      color: #082f73;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .portal-subtitle {
+    .metric-label {
       color: #667085;
-      margin-bottom: 28px;
+      font-size: 13px;
+      margin-bottom: 5px;
     }
 
-    .form-label {
-      color: #344054;
+    .metric-value {
+      color: #101828;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .usage-progress {
+      height: 24px;
+      border-radius: 100px;
+      background: #e9eef6;
+      overflow: hidden;
+    }
+
+    .usage-progress .progress-bar {
+      min-width: 0;
+      border-radius: 100px;
+      background: linear-gradient(90deg, #075ee8, #1a8cff);
+      font-size: 12px;
+      font-weight: 700;
+      transition: width 0.6s ease;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      min-height: 310px;
+    }
+
+    .details-table td {
+      padding: 13px 4px;
+      border-color: #eef1f6;
+    }
+
+    .details-table td:first-child {
+      color: #667085;
+    }
+
+    .details-table td:last-child {
+      color: #101828;
+      text-align: right;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .action-button {
+      border-radius: 10px;
       font-weight: 600;
     }
 
-    .input-group-text {
-      background: #f8fafc;
-      border-right: 0;
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(243, 246, 251, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .form-control {
-      min-height: 52px;
-      border-left: 0;
+    .loading-box {
+      width: min(90%, 320px);
+      border-radius: 18px;
+      padding: 30px;
+      text-align: center;
+      background: #ffffff;
+      box-shadow: 0 15px 45px rgba(16, 24, 40, 0.15);
     }
 
-    .form-control:focus {
-      box-shadow: none;
-      border-color: #86b7fe;
-    }
-
-    .login-button {
-      min-height: 52px;
-      border: 0;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #0646c7, #0d6efd);
-      font-weight: 700;
-    }
-
-    .login-button:hover {
-      background: linear-gradient(135deg, #043ba8, #0757d4);
-    }
-
-    .message-box {
-      display: none;
-      margin-top: 18px;
-    }
-
-    .footer-text {
+    .footer {
+      text-align: center;
       color: #98a2b3;
       font-size: 13px;
-      text-align: center;
-      margin-top: 26px;
-      margin-bottom: 0;
+      padding-top: 30px;
     }
 
-    .security-note {
-      color: #667085;
-      font-size: 13px;
-      margin-top: 16px;
-      text-align: center;
-    }
-
-    @media (max-width: 576px) {
-      body {
-        padding: 15px;
+    @media (max-width: 767px) {
+      .topbar .container-fluid {
+        align-items: flex-start !important;
       }
 
-      .login-card {
-        padding: 26px 20px;
-        border-radius: 20px;
+      .topbar-actions {
+        margin-top: 14px;
+        width: 100%;
+      }
+
+      .topbar-actions .btn {
+        flex: 1;
+      }
+
+      .metric-value {
+        font-size: 21px;
+      }
+
+      .chart-wrapper {
+        min-height: 265px;
       }
     }
   </style>
@@ -136,86 +243,305 @@
 
 <body>
 
-  <main class="login-card">
-
-    <div class="text-center">
-      <img
-        src="images/logo.png"
-        alt="AST Networks"
-        class="logo"
-        onerror="this.style.display='none'"
-      >
-
-      <h1 class="portal-title h3">
-        AST Customer Portal
-      </h1>
-
-      <p class="portal-subtitle">
-        Check your internet voucher balance and usage
-      </p>
-    </div>
-
-    <form id="loginForm" novalidate>
-
-      <label for="tokenInput" class="form-label">
-        Internet Voucher / Token
-      </label>
-
-      <div class="input-group mb-3">
-        <span class="input-group-text">
-          <i class="bi bi-key"></i>
-        </span>
-
-        <input
-          type="text"
-          id="tokenInput"
-          class="form-control"
-          placeholder="Enter your voucher token"
-          autocomplete="off"
-          inputmode="numeric"
-          maxlength="50"
-          required
-        >
-      </div>
-
-      <button
-        type="submit"
-        id="loginButton"
-        class="btn btn-primary login-button w-100"
-      >
-        <span id="buttonText">
-          <i class="bi bi-box-arrow-in-right me-1"></i>
-          Check Usage
-        </span>
-
-        <span
-          id="buttonLoading"
-          class="d-none"
-        >
-          <span
-            class="spinner-border spinner-border-sm me-2"
-            aria-hidden="true"
-          ></span>
-          Checking token...
-        </span>
-      </button>
-
+  <div
+    id="loadingOverlay"
+    class="loading-overlay"
+  >
+    <div class="loading-box">
       <div
-        id="messageBox"
-        class="alert message-box"
-        role="alert"
+        class="spinner-border text-primary mb-3"
+        role="status"
       ></div>
 
-    </form>
+      <h5 class="mb-2">
+        Loading your usage
+      </h5>
 
-    <p class="security-note">
-      <i class="bi bi-shield-check me-1"></i>
-      Your connection is handled securely through AST Networks.
-    </p>
+      <p class="text-secondary mb-0">
+        Please wait while we contact the AST network.
+      </p>
+    </div>
+  </div>
 
-    <p class="footer-text">
+  <header class="topbar">
+    <div
+      class="container-fluid px-3 px-md-4 d-flex flex-wrap justify-content-between align-items-center"
+    >
+
+      <div class="d-flex align-items-center gap-3">
+        <img
+          src="images/logo.png"
+          alt="AST Networks"
+          class="brand-logo"
+          onerror="this.style.display='none'"
+        >
+
+        <div>
+          <p class="brand-title">
+            AST Customer Portal
+          </p>
+
+          <p class="brand-subtitle">
+            Internet usage and voucher information
+          </p>
+        </div>
+      </div>
+
+      <div class="topbar-actions d-flex gap-2">
+        <button
+          type="button"
+          id="refreshButton"
+          class="btn btn-light action-button"
+        >
+          <i class="bi bi-arrow-clockwise me-1"></i>
+          Refresh
+        </button>
+
+        <button
+          type="button"
+          id="logoutButton"
+          class="btn btn-outline-light action-button"
+        >
+          <i class="bi bi-box-arrow-right me-1"></i>
+          Exit
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="page-container">
+
+    <div
+      id="errorAlert"
+      class="alert alert-danger d-none"
+      role="alert"
+    ></div>
+
+    <section class="card welcome-card mb-4">
+      <div class="card-body p-4">
+
+        <div
+          class="d-flex flex-wrap justify-content-between align-items-start gap-3"
+        >
+          <div>
+            <p class="text-secondary mb-1">
+              Internet Voucher
+            </p>
+
+            <h1
+              id="tokenDisplay"
+              class="h3 fw-bold mb-2"
+            >
+              —
+            </h1>
+
+            <p class="text-secondary mb-0">
+              Last refreshed:
+              <span id="lastUpdated">—</span>
+            </p>
+          </div>
+
+          <div
+            id="statusBadge"
+            class="status-badge status-invalid"
+          >
+            <i class="bi bi-hourglass-split"></i>
+            Checking
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card usage-card mb-4">
+      <div class="card-body p-4">
+
+        <div class="mb-4">
+          <h2 class="h5 fw-bold mb-1">
+            Data Usage
+          </h2>
+
+          <p
+            id="remainingText"
+            class="text-secondary mb-0"
+          >
+            Loading usage information...
+          </p>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+          <div class="col-12 col-md-4">
+            <div class="metric-card">
+
+              <div class="metric-icon">
+                <i class="bi bi-hdd-network"></i>
+              </div>
+
+              <p class="metric-label">
+                Data Package
+              </p>
+
+              <p
+                id="quotaValue"
+                class="metric-value"
+              >
+                —
+              </p>
+
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="metric-card">
+
+              <div class="metric-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+
+              <p class="metric-label">
+                Data Used
+              </p>
+
+              <p
+                id="usedValue"
+                class="metric-value"
+              >
+                —
+              </p>
+
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="metric-card">
+
+              <div class="metric-icon">
+                <i class="bi bi-database-check"></i>
+              </div>
+
+              <p class="metric-label">
+                Data Remaining
+              </p>
+
+              <p
+                id="remainingValue"
+                class="metric-value"
+              >
+                —
+              </p>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-secondary">
+            Usage
+          </span>
+
+          <strong id="usagePercentText">
+            0%
+          </strong>
+        </div>
+
+        <div class="progress usage-progress">
+          <div
+            id="usageProgress"
+            class="progress-bar"
+            role="progressbar"
+            style="width: 0%;"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="row g-4">
+
+      <div class="col-12 col-lg-7">
+        <section class="card chart-card h-100">
+          <div class="card-body p-4">
+
+            <h2 class="h5 fw-bold mb-1">
+              <i class="bi bi-pie-chart me-1"></i>
+              Internet Usage
+            </h2>
+
+            <p class="text-secondary mb-4">
+              Current used and remaining data
+            </p>
+
+            <div class="chart-wrapper">
+              <canvas id="usageChart"></canvas>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <section class="card details-card h-100">
+          <div class="card-body p-4">
+
+            <h2 class="h5 fw-bold mb-3">
+              <i class="bi bi-info-circle me-1"></i>
+              Voucher Details
+            </h2>
+
+            <div class="table-responsive">
+              <table class="table details-table mb-0">
+                <tbody>
+
+                  <tr>
+                    <td>Status</td>
+                    <td id="detailStatus">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Valid</td>
+                    <td id="detailValid">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Expired</td>
+                    <td id="detailExpired">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Activated / Used</td>
+                    <td id="detailUsed">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Valid From</td>
+                    <td id="detailValidFrom">—</td>
+                  </tr>
+
+                  <tr>
+                    <td>Expiry</td>
+                    <td id="detailExpiry">—</td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+    </div>
+
+    <footer class="footer">
       Powered by AST Networks
-    </p>
+    </footer>
 
   </main>
 
@@ -223,31 +549,44 @@
     const API_URL =
       "https://oracxulqmnjwjsfjrre.supabase.co/functions/v1/rapid-endpoint";
 
-    const loginForm = document.getElementById("loginForm");
-    const tokenInput = document.getElementById("tokenInput");
-    const loginButton = document.getElementById("loginButton");
-    const buttonText = document.getElementById("buttonText");
-    const buttonLoading = document.getElementById("buttonLoading");
-    const messageBox = document.getElementById("messageBox");
+    let usageChart = null;
 
-    loginForm.addEventListener("submit", async function (event) {
-      event.preventDefault();
+    const token =
+      sessionStorage.getItem("ast_customer_token");
 
-      const token = tokenInput.value.trim();
-
-      hideMessage();
-
+    document.addEventListener("DOMContentLoaded", function () {
       if (!token) {
-        showMessage(
-          "Please enter your internet voucher token.",
-          "warning"
-        );
-
-        tokenInput.focus();
+        window.location.replace("index.html");
         return;
       }
 
-      setLoading(true);
+      document
+        .getElementById("refreshButton")
+        .addEventListener("click", loadUsage);
+
+      document
+        .getElementById("logoutButton")
+        .addEventListener("click", logout);
+
+      const storedData =
+        sessionStorage.getItem("ast_token_data");
+
+      if (storedData) {
+        try {
+          const parsedData = JSON.parse(storedData);
+          displayUsage(parsedData);
+          hideLoading();
+        } catch {
+          // Continue with a fresh API request.
+        }
+      }
+
+      loadUsage();
+    });
+
+    async function loadUsage() {
+      showLoading();
+      hideError();
 
       try {
         const requestUrl =
@@ -257,83 +596,378 @@
           method: "GET",
           headers: {
             "Accept": "application/json"
-          }
+          },
+          cache: "no-store"
         });
 
-        let result;
+        let data;
 
         try {
-          result = await response.json();
+          data = await response.json();
         } catch {
           throw new Error(
             "The server returned an invalid response."
           );
         }
 
-        if (!response.ok || result.success !== true) {
+        if (!response.ok || data.success !== true) {
           throw new Error(
-            result.message ||
-            "Voucher token was not found."
+            data.message ||
+            "Unable to retrieve voucher information."
           );
         }
-
-        if (result.valid === false) {
-          throw new Error(
-            "This voucher token is not valid."
-          );
-        }
-
-        if (result.expired === true) {
-          throw new Error(
-            "This voucher token has expired."
-          );
-        }
-
-        sessionStorage.setItem(
-          "ast_customer_token",
-          token
-        );
 
         sessionStorage.setItem(
           "ast_token_data",
-          JSON.stringify(result)
+          JSON.stringify(data)
         );
 
-        window.location.href = "dashboard.html";
+        displayUsage(data);
 
       } catch (error) {
-        console.error("Token lookup failed:", error);
+        console.error("Usage request failed:", error);
 
-        showMessage(
+        showError(
           error.message ||
-          "Unable to check the voucher. Please try again.",
-          "danger"
+          "Unable to retrieve usage information."
         );
 
       } finally {
-        setLoading(false);
+        hideLoading();
       }
-    });
-
-    function setLoading(isLoading) {
-      loginButton.disabled = isLoading;
-      tokenInput.disabled = isLoading;
-
-      buttonText.classList.toggle("d-none", isLoading);
-      buttonLoading.classList.toggle("d-none", !isLoading);
     }
 
-    function showMessage(message, type) {
-      messageBox.textContent = message;
-      messageBox.className =
-        `alert alert-${type} message-box`;
+    function displayUsage(data) {
+      const quotaMb =
+        normalizeNumber(data.bandwidth_quota_mb);
 
-      messageBox.style.display = "block";
+      const usedMb =
+        normalizeNumber(data.used_bandwidth_mb);
+
+      const remainingMb =
+        normalizeNumber(data.remaining_bandwidth_mb);
+
+      let percentage =
+        normalizeNumber(data.usage_percent);
+
+      if (
+        percentage === 0 &&
+        quotaMb > 0 &&
+        usedMb > 0
+      ) {
+        percentage =
+          Math.round((usedMb / quotaMb) * 100);
+      }
+
+      percentage = Math.min(
+        Math.max(percentage, 0),
+        100
+      );
+
+      document.getElementById("tokenDisplay").textContent =
+        data.token || token;
+
+      document.getElementById("quotaValue").textContent =
+        formatData(quotaMb);
+
+      document.getElementById("usedValue").textContent =
+        formatData(usedMb);
+
+      document.getElementById("remainingValue").textContent =
+        formatData(remainingMb);
+
+      document.getElementById("remainingText").textContent =
+        `${formatData(remainingMb)} remaining of ` +
+        `${formatData(quotaMb)} plan`;
+
+      const progressBar =
+        document.getElementById("usageProgress");
+
+      progressBar.style.width = `${percentage}%`;
+      progressBar.setAttribute(
+        "aria-valuenow",
+        String(percentage)
+      );
+
+      document.getElementById(
+        "usagePercentText"
+      ).textContent = `${percentage}%`;
+
+      updateStatus(data);
+
+      document.getElementById("detailStatus").textContent =
+        capitalize(data.status || "unknown");
+
+      document.getElementById("detailValid").textContent =
+        yesNo(data.valid);
+
+      document.getElementById("detailExpired").textContent =
+        yesNo(data.expired);
+
+      document.getElementById("detailUsed").textContent =
+        yesNo(data.used);
+
+      document.getElementById("detailValidFrom").textContent =
+        formatDate(data.valid_from);
+
+      document.getElementById("detailExpiry").textContent =
+        formatExpiry(data);
+
+      document.getElementById("lastUpdated").textContent =
+        new Date().toLocaleString();
+
+      renderChart(usedMb, remainingMb);
     }
 
-    function hideMessage() {
-      messageBox.style.display = "none";
-      messageBox.textContent = "";
+    function updateStatus(data) {
+      const badge =
+        document.getElementById("statusBadge");
+
+      badge.className = "status-badge";
+
+      if (data.expired === true) {
+        badge.classList.add("status-expired");
+        badge.innerHTML =
+          '<i class="bi bi-x-circle-fill"></i> Expired';
+
+        return;
+      }
+
+      if (
+        data.valid === true &&
+        String(data.status).toLowerCase() === "active"
+      ) {
+        badge.classList.add("status-active");
+        badge.innerHTML =
+          '<i class="bi bi-check-circle-fill"></i> Active';
+
+        return;
+      }
+
+      badge.classList.add("status-invalid");
+      badge.innerHTML =
+        '<i class="bi bi-exclamation-circle-fill"></i> Invalid';
+    }
+
+    function renderChart(usedMb, remainingMb) {
+      const canvas =
+        document.getElementById("usageChart");
+
+      if (!canvas || typeof Chart === "undefined") {
+        return;
+      }
+
+      if (usageChart) {
+        usageChart.destroy();
+      }
+
+      let chartUsed = usedMb;
+      let chartRemaining = remainingMb;
+
+      /*
+       * Chart.js may display an empty chart when both values are zero.
+       * Use a small placeholder only for visualization.
+       */
+      if (chartUsed === 0 && chartRemaining === 0) {
+        chartRemaining = 1;
+      }
+
+      usageChart = new Chart(canvas, {
+        type: "doughnut",
+
+        data: {
+          labels: [
+            "Used",
+            "Remaining"
+          ],
+
+          datasets: [{
+            data: [
+              chartUsed,
+              chartRemaining
+            ],
+
+            backgroundColor: [
+              "#075ee8",
+              "#dce8fb"
+            ],
+
+            borderWidth: 0,
+            hoverOffset: 5
+          }]
+        },
+
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "68%",
+
+          plugins: {
+            legend: {
+              position: "bottom",
+
+              labels: {
+                usePointStyle: true,
+                padding: 22
+              }
+            },
+
+            tooltip: {
+              callbacks: {
+                label(context) {
+                  const realValue =
+                    context.dataIndex === 0
+                      ? usedMb
+                      : remainingMb;
+
+                  return (
+                    `${context.label}: ` +
+                    `${formatData(realValue)}`
+                  );
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function formatData(mbValue) {
+      const mb = normalizeNumber(mbValue);
+
+      if (mb >= 1024) {
+        return `${(mb / 1024).toFixed(2)} GB`;
+      }
+
+      return `${mb.toFixed(0)} MB`;
+    }
+
+    function normalizeNumber(value) {
+      const number = Number(value);
+
+      return Number.isFinite(number)
+        ? number
+        : 0;
+    }
+
+    function formatDate(value) {
+      if (!value) {
+        return "Not available";
+      }
+
+      const normalizedValue =
+        String(value).includes("T")
+          ? value
+          : String(value).replace(" ", "T");
+
+      const date = new Date(normalizedValue);
+
+      if (Number.isNaN(date.getTime())) {
+        return String(value);
+      }
+
+      return date.toLocaleString();
+    }
+
+    function formatExpiry(data) {
+      const days =
+        Number(data.expiring_in_days);
+
+      const hours =
+        Number(data.expiring_in_hours);
+
+      const minutes =
+        Number(data.expiring_in_mins);
+
+      const hasDays =
+        Number.isFinite(days) && days > 0;
+
+      const hasHours =
+        Number.isFinite(hours) && hours > 0;
+
+      const hasMinutes =
+        Number.isFinite(minutes) && minutes > 0;
+
+      if (!hasDays && !hasHours && !hasMinutes) {
+        if (data.expired === true) {
+          return "Expired";
+        }
+
+        if (data.used === false) {
+          return "Starts after activation";
+        }
+
+        return "Not available";
+      }
+
+      const parts = [];
+
+      if (hasDays) {
+        parts.push(`${days} day${days === 1 ? "" : "s"}`);
+      }
+
+      if (hasHours) {
+        parts.push(`${hours} hour${hours === 1 ? "" : "s"}`);
+      }
+
+      if (hasMinutes) {
+        parts.push(
+          `${minutes} minute${minutes === 1 ? "" : "s"}`
+        );
+      }
+
+      return parts.join(", ");
+    }
+
+    function yesNo(value) {
+      return value === true ? "Yes" : "No";
+    }
+
+    function capitalize(value) {
+      const text = String(value);
+
+      return (
+        text.charAt(0).toUpperCase() +
+        text.slice(1)
+      );
+    }
+
+    function logout() {
+      sessionStorage.removeItem(
+        "ast_customer_token"
+      );
+
+      sessionStorage.removeItem(
+        "ast_token_data"
+      );
+
+      window.location.replace("index.html");
+    }
+
+    function showLoading() {
+      document
+        .getElementById("loadingOverlay")
+        .style.display = "flex";
+    }
+
+    function hideLoading() {
+      document
+        .getElementById("loadingOverlay")
+        .style.display = "none";
+    }
+
+    function showError(message) {
+      const alertBox =
+        document.getElementById("errorAlert");
+
+      alertBox.textContent = message;
+      alertBox.classList.remove("d-none");
+    }
+
+    function hideError() {
+      document
+        .getElementById("errorAlert")
+        .classList.add("d-none");
     }
   </script>
 
