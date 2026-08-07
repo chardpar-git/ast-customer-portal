@@ -568,19 +568,7 @@
         .getElementById("logoutButton")
         .addEventListener("click", logout);
 
-      const storedData =
-        sessionStorage.getItem("ast_token_data");
-
-      if (storedData) {
-        try {
-          const parsedData = JSON.parse(storedData);
-          displayUsage(parsedData);
-          hideLoading();
-        } catch {
-          // Continue with a fresh API request.
-        }
-      }
-
+    
       loadUsage();
     });
 
