@@ -5,7 +5,7 @@ if(!voucher){
 }
 
 document.getElementById("welcome").innerHTML =
-"Welcome<br><small class='text-muted'>Voucher : "+voucher+"</small>";
+`Welcome!<br><small class="text-muted">Voucher: ${voucher}</small>`;
 
 function logout(){
 
